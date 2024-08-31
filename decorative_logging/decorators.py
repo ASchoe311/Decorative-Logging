@@ -3,6 +3,7 @@ import sys
 import functools
 from time import perf_counter
 import cProfile
+import inspect
 import pstats
 from io import StringIO
 from rich.console import Console
@@ -216,9 +217,13 @@ def log_memory_usage(level="debug", filename=None):
 
 def log_profiling_data(level="debug", stats_order='cumtime', filename=None):
     """
-    Logs a table containing all calls made by the decorated function and data about those calls
-
-    For more information on how to read the table, see https://docs.python.org/3/library/profile.html#instant-user-s-manual
+    Logs full runtime profiling data for the wrapped function
+    Outputs a table containing all calls made by the decorated function and data about those calls
+            *See https://docs.python.org/3/library/profile.html#instant-user-s-manual for more info
+        
+    BYPASSES ALL OTHER WRAPPERS
+        
+        
 
     Logs function calls at the specified log level with the format
         FUNCTION CALL: func_name(args, kwargs)
@@ -234,21 +239,24 @@ def log_profiling_data(level="debug", stats_order='cumtime', filename=None):
     level = utils.clean_and_check_level(level)
 
     def cpu_logger(func):
+        original_func = inspect.unwrap(func)
         logger, log_func = utils.get_logger(
             f"log_profiling_data:{func.__name__}", level, filename
             )
 
-        @functools.wraps(func)
+        @functools.wraps(original_func)
         def log(*args, **kwargs):
             with cProfile.Profile() as pr:
-                pr.enable()
-                result = func(*args, **kwargs)
-                pr.create_stats()
+                # pr.enable()
+                # result = original_func(*args, **kwargs)
+                result = pr.runcall(original_func, *args, **kwargs)
+                # pr.create_stats()
                 string_stream = StringIO()
                 ps = pstats.Stats(pr, stream=string_stream)
+                ps.strip_dirs()
                 ps.sort_stats(stats_order)
                 ps.print_stats()
-                panel_title = "Profiling Data for " + func.__name__
+                panel_title = "Profiling Data for " + original_func.__name__
                 panel_title += utils.get_arg_string(*args, **kwargs)
                 stats = string_stream.getvalue()
                 stats_lines = [i.strip() for i in stats.split("\n") if i != '']

@@ -1,5 +1,4 @@
 .venv
-decorative_logging/tests/
 log.txt
 _pycache_
 decorative_logging/__pycache__/
