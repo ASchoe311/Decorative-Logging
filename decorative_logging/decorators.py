@@ -142,7 +142,7 @@ def log_execution_time(level="debug", filename=None):
         return timer
     return time_logger
 
-
+#TODO Write code for custome logging
 def custom_logger(name, message, level, filename=None):
     """
     Logs the execution of the decorated function
@@ -216,7 +216,9 @@ def log_memory_usage(level="debug", filename=None):
 
 def log_profiling_data(level="debug", stats_order='cumtime', filename=None):
     """
-    Logs the execution of the decorated function
+    Logs a table containing all calls made by the decorated function and data about those calls
+
+    For more information on how to read the table, see https://docs.python.org/3/library/profile.html#instant-user-s-manual
 
     Logs function calls at the specified log level with the format
         FUNCTION CALL: func_name(args, kwargs)
