@@ -81,7 +81,7 @@ def string_to_log_func(logger, level_string):
         return logger.critical
 
 
-def get_stream_handler(base_level='debug'):
+def get_stream_handler(base_level='debug', formatter=CustomFormatter):
     formatted_stream_handler = logging.StreamHandler()
     formatted_stream_handler.setLevel(string_to_level(base_level))
     # add formatter to formatted_stream_handler
@@ -89,7 +89,7 @@ def get_stream_handler(base_level='debug'):
     return formatted_stream_handler
 
 
-def get_file_handler(filename, base_level='debug'):
+def get_file_handler(filename, base_level='debug', formatter=CustomFileFormatter):
     formatted_file_handler = logging.FileHandler(filename)
     formatted_file_handler.setLevel(string_to_level(base_level))
     formatted_file_handler.setFormatter(CustomFileFormatter())
@@ -106,10 +106,10 @@ def get_logger(name, level, filename=None):
     return logger, log_func
 
 
-def clean_result(result):
+def clean_result(result, show_length = 50):
     res_str = str(result)
     if len(res_str) > 100:
-        res_str = ''.join(res_str[:50]) + " ... " + ''.join(res_str[-50:])
+        res_str = ''.join(res_str[:show_length]) + " ... " + ''.join(res_str[-show_length:])
     return res_str
 
 

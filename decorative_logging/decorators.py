@@ -6,10 +6,12 @@ import cProfile
 import inspect
 import pstats
 from io import StringIO
-from rich.console import Console
+from rich.console import Console, Group
 from rich.table import Table
 from rich.panel import Panel
 from rich.padding import Padding
+from rich.rule import Rule
+from rich.text import Text
 
 
 def log_execution(level="debug", filename=None):
@@ -143,7 +145,7 @@ def log_execution_time(level="debug", filename=None):
         return timer
     return time_logger
 
-#TODO Write code for custome logging
+#TODO Write code for custom logging
 def custom_logger(name, message, level, filename=None):
     """
     Logs the execution of the decorated function
@@ -256,6 +258,7 @@ def log_profiling_data(level="debug", stats_order='cumtime', filename=None):
                 ps.strip_dirs()
                 ps.sort_stats(stats_order)
                 ps.print_stats()
+                # pro = ps.get_stats_profile()
                 panel_title = "Profiling Data for " + original_func.__name__
                 panel_title += utils.get_arg_string(*args, **kwargs)
                 stats = string_stream.getvalue()
@@ -275,11 +278,20 @@ def log_profiling_data(level="debug", stats_order='cumtime', filename=None):
                 for header in stats_dict['col_headers']:
                     table.add_column(header, justify="center")
                 for row in stats_dict['data_rows']:
+                    # if 'profile' not in row[-1].lower():
                     table.add_row(*row)
                 console = Console(file=StringIO())
+                rule = Rule()
+                ret_val = "RETURNED VALUE: " + str(utils.clean_result(result, show_length=30))
+                panel_group = Group(
+                    table,
+                    rule,
+                    Text(ret_val, justify = "center")
+                )
                 console.print(
                     Panel(
-                        table,
+                        panel_group,
+                        expand=False,
                         title=panel_title,
                         subtitle=stats_dict['list_order']
                     )
